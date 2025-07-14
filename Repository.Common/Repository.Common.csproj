@@ -7,4 +7,9 @@
         <RootNamespace>Mono.Repository.Common</RootNamespace>
     </PropertyGroup>
 
+    <ItemGroup>
+        <ProjectReference Include="..\DAL\DAL.csproj"/>
+        <ProjectReference Include="..\Model.Common\Model.Common.csproj"/>
+    </ItemGroup>
+
 </Project>
