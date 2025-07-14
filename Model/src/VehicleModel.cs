@@ -1,0 +1,15 @@
+﻿namespace Model.Common;
+
+public class VehicleModel
+{
+    public int Id { get; set; }
+    public required string Name { get; set; }
+    public required string Abrv { get; set; }
+    
+    // Foreign key
+    public int VehicleMakeId { get; set; }
+    
+    // Navigation properties
+    public required VehicleMake Make { get; set; }
+    public List<VehicleRegistration> Registrations { get; } = [];
+}
