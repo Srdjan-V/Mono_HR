@@ -1,4 +1,4 @@
-﻿namespace Model.Common;
+﻿namespace Mono.Model;
 
 public class VehicleMake
 {
