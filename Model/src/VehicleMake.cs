@@ -1,8 +1,13 @@
-﻿namespace Mono.Model;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Mono.Model;
 
 public class VehicleMake
 {
-    public required int Id { get; set; }
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.None)]
+    public required int VehicleMakeId { get; set; }
     public required string Name { get; set; }
     public required string Abrv { get; set; }
 

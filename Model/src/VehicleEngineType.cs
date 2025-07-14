@@ -1,8 +1,14 @@
-﻿namespace Mono.Model;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
+namespace Mono.Model;
+
+[Table("VehicleEngineTypes")]
 public class VehicleEngineType
 {
-    public required int Id { get; set; }
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.None)]
+    public required int VehicleEngineTypeId { get; set; }
     public required string Type { get; set; }
     public required string Abrv { get; set; }
 
