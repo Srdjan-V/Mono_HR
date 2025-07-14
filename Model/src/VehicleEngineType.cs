@@ -1,21 +1,17 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using Mono.Model.Common;
 
 namespace Mono.Model;
 
-[Table("VehicleEngineTypes")]
-public class VehicleEngineType
+public class VehicleEngineType : IVehicleEngineType
 {
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.None)]
-    public required int VehicleEngineTypeId { get; set; }
+    public required long Id { get; set; }
     public required string Type { get; set; }
     public required string Abrv { get; set; }
 
-    public ICollection<VehicleRegistration> Registrations { get; protected set; }
-    
+    public ICollection<IVehicleRegistration> Registrations { get; protected set; }
+
     public VehicleEngineType()
     {
-        Registrations = new HashSet<VehicleRegistration>();
+        Registrations = new HashSet<IVehicleRegistration>();
     }
 }

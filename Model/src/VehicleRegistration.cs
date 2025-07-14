@@ -1,15 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using Mono.Model.Common;
 
 namespace Mono.Model;
 
-[Table("VehicleRegistrations")]
-public class VehicleRegistration
+public class VehicleRegistration : IVehicleRegistration
 {
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.None)]
-    public required int VehicleRegistrationId { get; set; }
-
+    public required long Id { get; set; }
     public required string RegistrationNumber { get; set; }
 
     // Foreign keys
@@ -18,7 +13,7 @@ public class VehicleRegistration
     public int VehicleOwnerId { get; set; }
 
     // Navigation properties
-    public VehicleModel Model { get; set; }
-    public VehicleEngineType EngineType { get; set; }
-    public VehicleOwner Owner { get; set; }
+    public IVehicleModel Model { get; set; }
+    public IVehicleEngineType EngineType { get; set; }
+    public IVehicleOwner Owner { get; set; }
 }

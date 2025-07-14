@@ -7,4 +7,8 @@
         <RootNamespace>Mono.Model</RootNamespace>
     </PropertyGroup>
 
+    <ItemGroup>
+        <ProjectReference Include="..\Model.Common\Model.Common.csproj"/>
+    </ItemGroup>
+
 </Project>

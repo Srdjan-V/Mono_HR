@@ -7,8 +7,4 @@
         <RootNamespace>Mono.Model.Common</RootNamespace>
     </PropertyGroup>
 
-    <ItemGroup>
-      <Folder Include="src\" />
-    </ItemGroup>
-
 </Project>

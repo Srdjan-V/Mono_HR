@@ -1,21 +1,18 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using Mono.Model.Common;
 
 namespace Mono.Model;
 
-public class VehicleMake
+public class VehicleMake : IVehicleMake
 {
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.None)]
-    public required int VehicleMakeId { get; set; }
+    public required long Id { get; set; }
     public required string Name { get; set; }
     public required string Abrv { get; set; }
 
     // Navigation property
-    public ICollection<VehicleModel> Models { get; protected set; }
-    
+    public ICollection<IVehicleModel> Models { get; protected set; }
+
     public VehicleMake()
     {
-        Models = new HashSet<VehicleModel>();
+        Models = new HashSet<IVehicleModel>();
     }
 }
