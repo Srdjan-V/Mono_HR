@@ -6,5 +6,10 @@ public class VehicleEngineType
     public required string Type { get; set; }
     public required string Abrv { get; set; }
 
-    public List<VehicleRegistration> Registrations { get; } = [];
+    public ICollection<VehicleRegistration> Registrations { get; protected set; }
+    
+    public VehicleEngineType()
+    {
+        Registrations = new HashSet<VehicleRegistration>();
+    }
 }

@@ -11,5 +11,11 @@ public class VehicleModel
     
     // Navigation properties
     public required VehicleMake Make { get; set; }
-    public List<VehicleRegistration> Registrations { get; } = [];
+    public ICollection<VehicleRegistration> Registrations { get; protected set; }
+
+
+    public VehicleModel()
+    {
+        Registrations = new HashSet<VehicleRegistration>();
+    }
 }

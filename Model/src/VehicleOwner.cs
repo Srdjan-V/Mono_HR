@@ -8,5 +8,10 @@ public class VehicleOwner
     public DateTime DOB { get; set; }  // Date of Birth
     
     // Navigation property
-    public List<VehicleRegistration> Registrations { get; } = [];
+    public ICollection<VehicleRegistration> Registrations { get; protected set; }
+
+    public VehicleOwner()
+    {
+        Registrations = new HashSet<VehicleRegistration>();
+    }
 }

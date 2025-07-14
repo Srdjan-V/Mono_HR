@@ -7,5 +7,10 @@ public class VehicleMake
     public required string Abrv { get; set; }
 
     // Navigation property
-    public List<VehicleModel> Models { get; } = [];
+    public ICollection<VehicleModel> Models { get; protected set; }
+    
+    public VehicleMake()
+    {
+        Models = new HashSet<VehicleModel>();
+    }
 }
