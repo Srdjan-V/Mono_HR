@@ -40,7 +40,7 @@ public class OwnerRepositoryTests
             });
 
             await addAsync;
-            //await repository.CommitAsync();//todo check if i need to create db tables on context init
+            await repository.CommitAsync();
 
             var data = await repository.GetAsync(2500);
             data.Should().NotBeNull();
