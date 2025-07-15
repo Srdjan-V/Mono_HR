@@ -2,4 +2,4 @@
 
 namespace Mono.Repository.Common.Repositories;
 
-public interface IOwnerRepository : IRepository<IVehicleOwner>;
+public interface IOwnerRepository<TM> : IRepository<TM> where TM : IVehicleOwner;

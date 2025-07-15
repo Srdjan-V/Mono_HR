@@ -1,5 +1,4 @@
-﻿using System.Transactions;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Mono.DAL;
 using Mono.Model.Common;
 
@@ -14,6 +13,18 @@ public abstract class DefaultRepository<T> : IRepository<T> where T : class, IBa
     {
         DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         DbSet = dbContextMapper(DbContext);
+    }
+
+    public virtual ValueTask<T?> GetAsync(long id)
+    {
+        try
+        {
+            return DbSet.FindAsync(id);
+        }
+        catch (Exception e)
+        {
+            throw new IOException("Unable to find", e);
+        }
     }
 
     public virtual Task<int> AddAsync(T entity)
@@ -86,16 +97,9 @@ public abstract class DefaultRepository<T> : IRepository<T> where T : class, IBa
         return entity == null ? Task.FromResult(1) : DeleteAsync(entity);
     }
 
-    public Task<int> CommitAsync()
+    public async Task<int> CommitAsync()
     {
-        int result = 0;
-        using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-        {
-            result = DbContext.SaveChanges();
-            scope.Complete();
-        }
-
-        return Task.FromResult(result);
+        return await DbContext.SaveChangesAsync();
     }
 
     public void Dispose()

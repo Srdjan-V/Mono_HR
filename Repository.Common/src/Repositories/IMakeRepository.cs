@@ -2,4 +2,4 @@
 
 namespace Mono.Repository.Common.Repositories;
 
-public interface IMakeRepository : IRepository<IVehicleMake>;
+public interface IMakeRepository<TM> : IRepository<TM> where TM : IVehicleMake;

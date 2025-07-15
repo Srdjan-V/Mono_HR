@@ -2,7 +2,7 @@
 
 namespace Mono.Repository.Common;
 
-public interface IRepositoryFactory<in T> where T : IBaseEntity
+public interface IRepositoryFactory<T> where T : IBaseEntity
 {
     public IRepository<T> Build();
 }

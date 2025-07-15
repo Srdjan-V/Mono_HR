@@ -1,9 +1,10 @@
 ﻿using Mono.DAL;
-using Mono.Model.Common;
+using Mono.Model;
 using Mono.Repository.Common;
 using Mono.Repository.Common.Repositories;
 
 namespace Mono.Repository;
 
-public class MakeRepository(IMonoDbContext dbContext)
-    : DefaultRepository<IVehicleMake>(dbContext, ctx => ctx.VehicleMakes()), IMakeRepository;
+public class MakeRepository(IMonoDbContext dbContext) :
+    DefaultRepository<VehicleMake>(dbContext, ctx => ctx.VehicleMakes()),
+    IMakeRepository<VehicleMake>;
