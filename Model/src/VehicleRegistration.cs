@@ -8,12 +8,32 @@ public class VehicleRegistration : IVehicleRegistration
     public required string RegistrationNumber { get; set; }
 
     // Foreign keys
-    public int VehicleModelId { get; set; }
-    public int VehicleEngineTypeId { get; set; }
-    public int VehicleOwnerId { get; set; }
+    public long VehicleModelId { get; set; }
+    public long VehicleEngineTypeId { get; set; }
+    public long VehicleOwnerId { get; set; }
 
     // Navigation properties
-    public IVehicleModel Model { get; set; }
-    public IVehicleEngineType EngineType { get; set; }
-    public IVehicleOwner Owner { get; set; }
+    public VehicleModel Model { get; set; }
+
+    IVehicleModel IVehicleRegistration.Model
+    {
+        get => Model;
+        set => Model = (VehicleModel)value;
+    }
+
+    public VehicleEngineType EngineType { get; set; }
+
+    IVehicleEngineType IVehicleRegistration.EngineType
+    {
+        get => EngineType;
+        set => EngineType = (VehicleEngineType)value;
+    }
+
+    public VehicleOwner Owner { get; set; }
+
+    IVehicleOwner IVehicleRegistration.Owner
+    {
+        get => Owner;
+        set => Owner = (VehicleOwner)value;
+    }
 }

@@ -9,15 +9,22 @@ public class VehicleModel : IVehicleModel
     public required string Abrv { get; set; }
 
     // Foreign key
-    public int VehicleMakeId { get; set; }
+    public long VehicleMakeId { get; set; }
 
     // Navigation properties
-    public required IVehicleMake Make { get; set; }
-    public ICollection<IVehicleRegistration> Registrations { get; protected set; }
+    public required VehicleMake Make { get; set; }
 
-
-    public VehicleModel()
+    IVehicleMake IVehicleModel.Make
     {
-        Registrations = new HashSet<IVehicleRegistration>();
+        get => Make;
+        set => Make = (VehicleMake)value;
+    }
+
+    public ICollection<VehicleRegistration> Registrations { get; set; } = new HashSet<VehicleRegistration>();
+
+    ICollection<IVehicleRegistration> IVehicleModel.Registrations
+    {
+        get => Registrations.Cast<IVehicleRegistration>().ToList();
+        set => Registrations = value.Cast<VehicleRegistration>().ToList();
     }
 }

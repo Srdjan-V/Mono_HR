@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 using Microsoft.EntityFrameworkCore;
-using Mono.Model.Common;
+using Mono.Model;
 
 namespace Mono.DAL;
 
@@ -17,9 +17,15 @@ public abstract class DefaultMonoDbContext : DbContext, IMonoDbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         var typesToRegister = Assembly.GetExecutingAssembly().GetTypes()
-            .Where(type => !String.IsNullOrEmpty(type.Namespace))
-            .Where(type => type.BaseType is { IsGenericType: true } &&
-                           type.BaseType.GetGenericTypeDefinition() == typeof(IEntityTypeConfiguration<>));
+            .Where(type => type is { Namespace: not null, IsClass: true, IsAbstract: false })
+            .Where(type =>
+                type.GetInterfaces().Any(i =>
+                    i.IsGenericType &&
+                    i.GetGenericTypeDefinition() == typeof(IEntityTypeConfiguration<>)) ||
+                (type.BaseType != null &&
+                 type.BaseType.IsGenericType &&
+                 type.BaseType.GetGenericTypeDefinition() == typeof(IEntityTypeConfiguration<>))
+            );
         foreach (var type in typesToRegister)
         {
             dynamic? configurationInstance = Activator.CreateInstance(type);
@@ -34,23 +40,33 @@ public abstract class DefaultMonoDbContext : DbContext, IMonoDbContext
         base.OnModelCreating(modelBuilder);
     }
 
-    public DbSet<IVehicleOwner> VehicleOwners()
+    public Task<int> SaveChangesAsync()
     {
-        return this.Set<IVehicleOwner>();
+        return base.SaveChangesAsync();
     }
 
-    public DbSet<IVehicleMake> VehicleMakes()
+    public DbSet<VehicleEngineType> EngineTypes()
     {
-        return this.Set<IVehicleMake>();
+        return this.Set<VehicleEngineType>();
     }
 
-    public DbSet<IVehicleModel> VehicleModels()
+    public DbSet<VehicleOwner> VehicleOwners()
     {
-        return this.Set<IVehicleModel>();
+        return this.Set<VehicleOwner>();
     }
 
-    public DbSet<IVehicleRegistration> Registrations()
+    public DbSet<VehicleMake> VehicleMakes()
     {
-        return this.Set<IVehicleRegistration>();
+        return this.Set<VehicleMake>();
+    }
+
+    public DbSet<VehicleModel> VehicleModels()
+    {
+        return this.Set<VehicleModel>();
+    }
+
+    public DbSet<VehicleRegistration> Registrations()
+    {
+        return this.Set<VehicleRegistration>();
     }
 }

@@ -1,12 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Mono.Model.Common;
+using Mono.Model;
 
 namespace Mono.DAL.EntityConfig;
 
-public class VehicleModelConfig : IEntityTypeConfiguration<IVehicleModel>
+public class VehicleModelConfig : IEntityTypeConfiguration<VehicleModel>
 {
-    public void Configure(EntityTypeBuilder<IVehicleModel> builder)
+    public void Configure(EntityTypeBuilder<VehicleModel> builder)
     {
         builder.ToTable("VehicleModels");
 

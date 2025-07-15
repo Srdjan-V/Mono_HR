@@ -10,10 +10,11 @@ public class VehicleOwner : IVehicleOwner
     public required DateTime DOB { get; set; } // Date of Birth
 
     // Navigation property
-    public ICollection<IVehicleRegistration> Registrations { get; protected set; }
+    public ICollection<VehicleRegistration> Registrations { get; set; } = new HashSet<VehicleRegistration>();
 
-    public VehicleOwner()
+    ICollection<IVehicleRegistration> IVehicleOwner.Registrations
     {
-        Registrations = new HashSet<IVehicleRegistration>();
+        get => Registrations.Cast<IVehicleRegistration>().ToList();
+        set => Registrations = value.Cast<VehicleRegistration>().ToList();
     }
 }

@@ -9,10 +9,11 @@ public class VehicleMake : IVehicleMake
     public required string Abrv { get; set; }
 
     // Navigation property
-    public ICollection<IVehicleModel> Models { get; protected set; }
+    public ICollection<VehicleModel> Models { get; set; } = new HashSet<VehicleModel>();
 
-    public VehicleMake()
+    ICollection<IVehicleModel> IVehicleMake.Models
     {
-        Models = new HashSet<IVehicleModel>();
+        get => Models.Cast<IVehicleModel>().ToList();
+        set => Models = value.Cast<VehicleModel>().ToList();
     }
 }

@@ -8,10 +8,11 @@ public class VehicleEngineType : IVehicleEngineType
     public required string Type { get; set; }
     public required string Abrv { get; set; }
 
-    public ICollection<IVehicleRegistration> Registrations { get; protected set; }
+    public ICollection<VehicleRegistration> Registrations { get; set; } = new HashSet<VehicleRegistration>();
 
-    public VehicleEngineType()
+    ICollection<IVehicleRegistration> IVehicleEngineType.Registrations
     {
-        Registrations = new HashSet<IVehicleRegistration>();
+        get => Registrations.Cast<IVehicleRegistration>().ToList();
+        set => Registrations = value.Cast<VehicleRegistration>().ToList();
     }
 }

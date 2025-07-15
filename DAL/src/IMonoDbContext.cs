@@ -1,17 +1,19 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Mono.Model.Common;
+using Mono.Model;
 
 namespace Mono.DAL;
 
 public interface IMonoDbContext : IDisposable
 {
-    public int SaveChanges();
+    public Task<int> SaveChangesAsync();
 
-    public DbSet<IVehicleOwner> VehicleOwners();
+    public DbSet<VehicleEngineType> EngineTypes();
 
-    public DbSet<IVehicleMake> VehicleMakes();
+    public DbSet<VehicleOwner> VehicleOwners();
 
-    public DbSet<IVehicleModel> VehicleModels();
+    public DbSet<VehicleMake> VehicleMakes();
 
-    public DbSet<IVehicleRegistration> Registrations();
+    public DbSet<VehicleModel> VehicleModels();
+
+    public DbSet<VehicleRegistration> Registrations();
 }
