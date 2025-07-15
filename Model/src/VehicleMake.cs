@@ -10,10 +10,4 @@ public class VehicleMake : IVehicleMake
 
     // Navigation property
     public ICollection<VehicleModel> Models { get; set; } = new HashSet<VehicleModel>();
-
-    ICollection<IVehicleModel> IVehicleMake.Models
-    {
-        get => Models.Cast<IVehicleModel>().ToList();
-        set => Models = value.Cast<VehicleModel>().ToList();
-    }
 }

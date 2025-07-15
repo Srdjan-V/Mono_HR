@@ -11,10 +11,4 @@ public class VehicleOwner : IVehicleOwner
 
     // Navigation property
     public ICollection<VehicleRegistration> Registrations { get; set; } = new HashSet<VehicleRegistration>();
-
-    ICollection<IVehicleRegistration> IVehicleOwner.Registrations
-    {
-        get => Registrations.Cast<IVehicleRegistration>().ToList();
-        set => Registrations = value.Cast<VehicleRegistration>().ToList();
-    }
 }

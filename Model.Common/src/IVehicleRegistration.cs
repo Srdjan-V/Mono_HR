@@ -6,7 +6,4 @@ public interface IVehicleRegistration : IBaseEntity
     long VehicleModelId { get; set; }
     long VehicleEngineTypeId { get; set; }
     long VehicleOwnerId { get; set; }
-    IVehicleModel Model { get; set; }
-    IVehicleEngineType EngineType { get; set; }
-    IVehicleOwner Owner { get; set; }
 }
