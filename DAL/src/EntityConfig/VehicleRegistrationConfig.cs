@@ -8,6 +8,8 @@ public class VehicleRegistrationConfig : IEntityTypeConfiguration<IVehicleRegist
 {
     public void Configure(EntityTypeBuilder<IVehicleRegistration> builder)
     {
+        builder.ToTable("VehicleRegistrations");
+
         builder.Property(cfg => cfg.Id).IsRequired();
 
         builder.Property(cfg => cfg.RegistrationNumber).IsRequired().HasMaxLength(20);

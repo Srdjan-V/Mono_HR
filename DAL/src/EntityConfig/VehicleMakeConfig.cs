@@ -8,6 +8,8 @@ public class VehicleMakeConfig : IEntityTypeConfiguration<IVehicleMake>
 {
     public void Configure(EntityTypeBuilder<IVehicleMake> builder)
     {
+        builder.ToTable("VehicleMakes");
+
         builder.Property(cfg => cfg.Id).IsRequired();
 
         builder.Property(cfg => cfg.Name).IsRequired();

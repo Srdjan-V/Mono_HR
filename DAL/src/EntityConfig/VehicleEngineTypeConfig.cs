@@ -8,6 +8,8 @@ public class VehicleEngineTypeConfig : IEntityTypeConfiguration<IVehicleEngineTy
 {
     public void Configure(EntityTypeBuilder<IVehicleEngineType> builder)
     {
+        builder.ToTable("VehicleEngineTypes");
+
         builder.Property(cfg => cfg.Id).IsRequired();
 
         builder.Property(cfg => cfg.Type).IsRequired();

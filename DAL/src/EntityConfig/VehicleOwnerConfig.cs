@@ -8,6 +8,8 @@ public class VehicleOwnerConfig : IEntityTypeConfiguration<IVehicleOwner>
 {
     public void Configure(EntityTypeBuilder<IVehicleOwner> builder)
     {
+        builder.ToTable("VehicleOwners");
+
         builder.Property(cfg => cfg.Id).IsRequired();
 
         builder.Property(cfg => cfg.FirstName).IsRequired();
