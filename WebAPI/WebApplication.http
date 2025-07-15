@@ -1,0 +1,10 @@
+@WebApplication_HostAddress = http://localhost:5191
+
+POST {{WebApplication_HostAddress}}/api/registrations/
+Accept: application/json
+
+{
+
+}
+
+###
