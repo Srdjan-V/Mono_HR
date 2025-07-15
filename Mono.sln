@@ -16,11 +16,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repository.Common", "Reposi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repository.Tests", "Repository.Tests\Repository.Tests.csproj", "{788FC598-B9C1-457F-9CE0-4B29FB5D5849}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mono.Service.Common", "Mono.Service.Common\Mono.Service.Common.csproj", "{850CFF5F-AC21-4A62-A053-9473A05F94AB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service.Common", "Service.Common\Service.Common.csproj", "{850CFF5F-AC21-4A62-A053-9473A05F94AB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mono.Service", "Mono.Service\Mono.Service.csproj", "{A7AD34A5-8757-4F6E-BCC8-B8A82893CA60}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service", "Service\Service.csproj", "{A7AD34A5-8757-4F6E-BCC8-B8A82893CA60}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mono.Service.Tests", "Mono.Service.Tests\Mono.Service.Tests.csproj", "{C665AD5E-45DF-48E5-B3BB-D96418CDF6D9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service.Tests", "Service.Tests\Service.Tests.csproj", "{C665AD5E-45DF-48E5-B3BB-D96418CDF6D9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mono.WebAPI", "Mono.WebAPI\Mono.WebAPI.csproj", "{B9D144B4-6C5B-498B-96DC-C2F316D106B0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -68,5 +70,9 @@ Global
 		{C665AD5E-45DF-48E5-B3BB-D96418CDF6D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C665AD5E-45DF-48E5-B3BB-D96418CDF6D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C665AD5E-45DF-48E5-B3BB-D96418CDF6D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9D144B4-6C5B-498B-96DC-C2F316D106B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9D144B4-6C5B-498B-96DC-C2F316D106B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9D144B4-6C5B-498B-96DC-C2F316D106B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9D144B4-6C5B-498B-96DC-C2F316D106B0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
