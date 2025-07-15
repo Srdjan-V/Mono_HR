@@ -4,11 +4,14 @@ using Mono.Model.Common;
 
 namespace Mono.DAL;
 
-public class DefaultMonoDbContext : DbContext, IMonoDbContext
+public abstract class DefaultMonoDbContext : DbContext, IMonoDbContext
 {
     protected DefaultMonoDbContext()
     {
-        //todo implement db connection
+    }
+
+    protected DefaultMonoDbContext(DbContextOptions options) : base(options)
+    {
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
