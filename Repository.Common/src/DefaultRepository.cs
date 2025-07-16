@@ -83,13 +83,15 @@ public abstract class DefaultRepository<T> : IRepository<T> where T : class, IBa
     {
         try
         {
-            var dbEntityEntry = DbSet.Entry(entity);
-            if (dbEntityEntry.State == EntityState.Detached)
+            var trackedEntity = DbSet.Local.FirstOrDefault(e => e.Id == entity.Id);
+
+            if (trackedEntity != null)
             {
-                DbSet.Attach(entity);
+                DbSet.Entry(trackedEntity).State = EntityState.Detached;
             }
 
-            dbEntityEntry.State = EntityState.Modified;
+            DbSet.Attach(entity);
+            DbSet.Entry(entity).State = EntityState.Modified;
             return Task.FromResult(1);
         }
         catch (Exception e)
