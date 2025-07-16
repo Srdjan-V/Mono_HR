@@ -49,5 +49,8 @@ public class ServiceModule : NinjectModule
         Bind<IVehicleService>().To<VehicleService>();
 
         Bind<VehicleRegistrationController>().ToSelf();
+        Bind<VehicleMakeControl>().ToSelf();
+        Bind<VehicleModelController>().ToSelf();
+        Bind<VehicleOwnerController>().ToSelf();
     }
 }
