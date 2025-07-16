@@ -13,13 +13,13 @@ namespace Mono.WebAPI;
 [Route("api/v{version:apiVersion}/[controller]")]
 public class VehicleModelController(
     IMapper mapper,
-    IRepositoryFactory<VehicleModel> makeFactory) :
+    IRepositoryFactory<VehicleModel> modelFactory) :
     ControllerBase
 {
     [HttpGet(Name = nameof(GetAllModels))]
     public async Task<ActionResult> GetAllModels(ApiVersion version, [FromQuery] QueryParameters queryParameters)
     {
-        using var repository = makeFactory.Build();
+        using var repository = modelFactory.Build();
         var query = queryParameters.Query;
         var pagedResult = await repository.FindPaged(
             queryParameters.Page,
@@ -56,5 +56,50 @@ public class VehicleModelController(
         {
             value = data,
         });
+    }
+
+    [HttpPost(Name = nameof(RegisterModel))]
+    public async Task<ActionResult> RegisterModel(ApiVersion version, [FromBody] VehicleModelCreateUpdateDto updateDto)
+    {
+        var vehicleModel = mapper.Map<VehicleModelCreateUpdateDto, VehicleModel>(updateDto);
+        using var repository = modelFactory.Build();
+        var i = await repository.AddAsync(vehicleModel);
+        if (i != 1)
+        {
+            throw new IOException("Failed to register new model");
+        }
+
+        var vehicleModelDto = mapper.Map<VehicleModelDto>(vehicleModel);
+        return Ok(vehicleModelDto);
+    }
+
+    [HttpPatch(Name = nameof(UpdateModel))]
+    public async Task<ActionResult> UpdateModel(ApiVersion version, [FromBody] VehicleModelCreateUpdateDto updateDto)
+    {
+        var vehicleModel = mapper.Map<VehicleModelCreateUpdateDto, VehicleModel>(updateDto);
+        using var repository = modelFactory.Build();
+        var updateAsync = await repository.UpdateAsync(vehicleModel);
+        var commitAsync = await repository.CommitAsync();
+        if (updateAsync != 1 || commitAsync != 1)
+        {
+            throw new IOException("Failed to update new make");
+        }
+
+        var vehicleMakeDto = mapper.Map<VehicleMakeDto>(vehicleModel);
+        return Ok(vehicleMakeDto);
+    }
+
+    [HttpDelete(Name = nameof(DeleteModel))]
+    public async Task<ActionResult> DeleteModel(ApiVersion version, [FromQuery] long id)
+    {
+        using var repository = modelFactory.Build();
+        var vehicleModel = await repository.GetAsync(id);
+        if (vehicleModel == null)
+        {
+            return NotFound();
+        }
+
+        var modelDto = mapper.Map<VehicleModelDto>(vehicleModel);
+        return Ok(modelDto);
     }
 }

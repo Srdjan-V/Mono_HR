@@ -16,8 +16,8 @@ public class VehicleOwnerController(
     IRepositoryFactory<VehicleOwner> makeFactory) :
     ControllerBase
 {
-    [HttpGet(Name = nameof(GetAllModels))]
-    public async Task<ActionResult> GetAllModels(ApiVersion version, [FromQuery] QueryParameters queryParameters)
+    [HttpGet(Name = nameof(GetAllOwners))]
+    public async Task<ActionResult> GetAllOwners(ApiVersion version, [FromQuery] QueryParameters queryParameters)
     {
         using var repository = makeFactory.Build();
         var query = queryParameters.Query;
@@ -56,5 +56,50 @@ public class VehicleOwnerController(
         {
             value = data,
         });
+    }
+
+    [HttpPost(Name = nameof(RegisterOwner))]
+    public async Task<ActionResult> RegisterOwner(ApiVersion version, [FromBody] VehicleOwnerCreateUpdateDto updateDto)
+    {
+        var vehicleOwner = mapper.Map<VehicleOwnerCreateUpdateDto, VehicleOwner>(updateDto);
+        using var repository = makeFactory.Build();
+        var i = await repository.AddAsync(vehicleOwner);
+        if (i != 1)
+        {
+            throw new IOException("Failed to register new make");
+        }
+
+        var ownerDto = mapper.Map<VehicleOwnerDto>(vehicleOwner);
+        return Ok(ownerDto);
+    }
+
+    [HttpPatch(Name = nameof(UpdateOwner))]
+    public async Task<ActionResult> UpdateOwner(ApiVersion version, [FromBody] VehicleOwnerCreateUpdateDto updateDto)
+    {
+        var vehicleOwner = mapper.Map<VehicleOwnerCreateUpdateDto, VehicleOwner>(updateDto);
+        using var repository = makeFactory.Build();
+        var updateAsync = await repository.UpdateAsync(vehicleOwner);
+        var commitAsync = await repository.CommitAsync();
+        if (updateAsync != 1 || commitAsync != 1)
+        {
+            throw new IOException("Failed to update new make");
+        }
+
+        var ownerDto = mapper.Map<VehicleOwnerDto>(vehicleOwner);
+        return Ok(ownerDto);
+    }
+
+    [HttpDelete(Name = nameof(DeleteOwner))]
+    public async Task<ActionResult> DeleteOwner(ApiVersion version, [FromQuery] long id)
+    {
+        using var repository = makeFactory.Build();
+        var vehicleOwner = await repository.GetAsync(id);
+        if (vehicleOwner == null)
+        {
+            return NotFound();
+        }
+
+        var ownerDto = mapper.Map<VehicleOwnerDto>(vehicleOwner);
+        return Ok(ownerDto);
     }
 }

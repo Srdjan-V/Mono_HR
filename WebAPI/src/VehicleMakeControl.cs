@@ -57,4 +57,49 @@ public class VehicleMakeControl(
             value = data,
         });
     }
+
+    [HttpPost(Name = nameof(RegisterMake))]
+    public async Task<ActionResult> RegisterMake(ApiVersion version, [FromBody] VehicleMakeCreateUpdateDto updateDto)
+    {
+        var vehicleMake = mapper.Map<VehicleMakeCreateUpdateDto, VehicleMake>(updateDto);
+        using var repository = makeFactory.Build();
+        var i = await repository.AddAsync(vehicleMake);
+        if (i != 1)
+        {
+            throw new IOException("Failed to register new make");
+        }
+
+        var vehicleMakeDto = mapper.Map<VehicleMakeDto>(vehicleMake);
+        return Ok(vehicleMakeDto);
+    }
+
+    [HttpPatch(Name = nameof(UpdateMake))]
+    public async Task<ActionResult> UpdateMake(ApiVersion version, [FromBody] VehicleMakeCreateUpdateDto updateDto)
+    {
+        var vehicleMake = mapper.Map<VehicleMakeCreateUpdateDto, VehicleMake>(updateDto);
+        using var repository = makeFactory.Build();
+        var updateAsync = await repository.UpdateAsync(vehicleMake);
+        var commitAsync = await repository.CommitAsync();
+        if (updateAsync != 1 || commitAsync != 1)
+        {
+            throw new IOException("Failed to update new make");
+        }
+
+        var vehicleMakeDto = mapper.Map<VehicleMakeDto>(vehicleMake);
+        return Ok(vehicleMakeDto);
+    }
+
+    [HttpDelete(Name = nameof(DeleteMake))]
+    public async Task<ActionResult> DeleteMake(ApiVersion version, [FromQuery] long id)
+    {
+        using var repository = makeFactory.Build();
+        var vehicleMake = await repository.GetAsync(id);
+        if (vehicleMake == null)
+        {
+            return NotFound();
+        }
+
+        var makeDto = mapper.Map<VehicleMakeDto>(vehicleMake);
+        return Ok(makeDto);
+    }
 }
