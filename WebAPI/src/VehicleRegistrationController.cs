@@ -13,7 +13,7 @@ public class VehicleRegistrationController(
     IMapper mapper
 ) : ControllerBase
 {
-    [HttpPost]
+    [HttpPost("register")]
     public async Task<ActionResult<VehicleRegistrationDto>> RegisterVehicle(
         [FromBody] CombinedRegistrationRequest request)
     {

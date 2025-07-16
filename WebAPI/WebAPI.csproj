@@ -8,8 +8,12 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\DAL\DAL.csproj"/>
         <ProjectReference Include="..\Model.Common\Model.Common.csproj"/>
+        <ProjectReference Include="..\Repository.Common\Repository.Common.csproj"/>
+        <ProjectReference Include="..\Repository\Repository.csproj"/>
         <ProjectReference Include="..\Service.Common\Service.Common.csproj"/>
+        <ProjectReference Include="..\Service\Service.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
