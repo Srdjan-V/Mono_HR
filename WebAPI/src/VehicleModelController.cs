@@ -10,27 +10,34 @@ using Mono.WebAPI.dto;
 namespace Mono.WebAPI;
 
 [ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/[controller]")]
+[Route("api/v{version}/[controller]")]
 public class VehicleModelController(
     IMapper mapper,
     IRepositoryFactory<VehicleModel> modelFactory) :
     ControllerBase
 {
     [HttpGet(Name = nameof(GetAllModels))]
-    public async Task<ActionResult> GetAllModels(ApiVersion version, [FromQuery] QueryParameters queryParameters)
+    public async Task<ActionResult> GetAllModels([FromQuery] QueryParameters queryParameters)
     {
         using var repository = modelFactory.Build();
         var query = queryParameters.Query;
+        Func<VehicleModel, bool>? filter = string.IsNullOrEmpty(query)
+            ? null
+            : make => make.Name.ToString().Contains(query, StringComparison.InvariantCultureIgnoreCase) ||
+                      make.Name.Contains(query, StringComparison.InvariantCultureIgnoreCase) ||
+                      make.Abrv.ToString().Contains(query, StringComparison.InvariantCultureIgnoreCase) ||
+                      make.Abrv.Contains(query, StringComparison.InvariantCultureIgnoreCase);
+
+        var sorter = queryParameters.CreateComparer<VehicleModel>([
+            typeof(VehicleModel).GetProperty(nameof(VehicleModel.Name)),
+            typeof(VehicleModel).GetProperty(nameof(VehicleModel.Abrv))
+        ], typeof(VehicleModel).GetProperty(nameof(VehicleModel.Name)));
+
         var pagedResult = await repository.FindPaged(
             queryParameters.Page,
             queryParameters.PageCount,
-            make =>
-                query == null ||
-                make.Name.ToString().Contains(query, StringComparison.InvariantCultureIgnoreCase) ||
-                make.Name.Contains(query, StringComparison.InvariantCultureIgnoreCase) ||
-                make.Abrv.ToString().Contains(query, StringComparison.InvariantCultureIgnoreCase) ||
-                make.Abrv.Contains(query, StringComparison.InvariantCultureIgnoreCase),
-            Comparer<VehicleModel>.Default //todo figure out how to build the correct sorter in c#
+            filter,
+            sorter
         );
 
         var allItemCount = await repository.CountAsync();
@@ -59,14 +66,15 @@ public class VehicleModelController(
     }
 
     [HttpPost(Name = nameof(RegisterModel))]
-    public async Task<ActionResult> RegisterModel(ApiVersion version, [FromBody] VehicleModelCreateUpdateDto updateDto)
+    public async Task<ActionResult> RegisterModel([FromBody] VehicleModelCreateUpdateDto updateDto)
     {
         var vehicleModel = mapper.Map<VehicleModelCreateUpdateDto, VehicleModel>(updateDto);
         using var repository = modelFactory.Build();
-        var i = await repository.AddAsync(vehicleModel);
-        if (i != 1)
+        var addAsync = await repository.AddAsync(vehicleModel);
+        var commitAsync = await repository.CommitAsync();
+        if (addAsync != 1 || commitAsync != 1)
         {
-            throw new IOException("Failed to register new model");
+            throw new IOException("Failed to register new make");
         }
 
         var vehicleModelDto = mapper.Map<VehicleModelDto>(vehicleModel);
@@ -74,7 +82,7 @@ public class VehicleModelController(
     }
 
     [HttpPatch(Name = nameof(UpdateModel))]
-    public async Task<ActionResult> UpdateModel(ApiVersion version, [FromBody] VehicleModelCreateUpdateDto updateDto)
+    public async Task<ActionResult> UpdateModel([FromBody] VehicleModelCreateUpdateDto updateDto)
     {
         var vehicleModel = mapper.Map<VehicleModelCreateUpdateDto, VehicleModel>(updateDto);
         using var repository = modelFactory.Build();
@@ -90,7 +98,7 @@ public class VehicleModelController(
     }
 
     [HttpDelete(Name = nameof(DeleteModel))]
-    public async Task<ActionResult> DeleteModel(ApiVersion version, [FromQuery] long id)
+    public async Task<ActionResult> DeleteModel([FromQuery] long id)
     {
         using var repository = modelFactory.Build();
         var vehicleModel = await repository.GetAsync(id);

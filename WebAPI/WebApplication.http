@@ -4,7 +4,28 @@ POST {{WebApplication_HostAddress}}/api/registrations/register
 Content-Type: application/json
 
 {
-
 }
 
 ###
+
+POST {{WebApplication_HostAddress}}/api/v1.0/vehiclemake
+Content-Type: application/json
+
+{
+  "name": "TestMake",
+  "abrv": "TestAbrv"
+}
+
+### V2
+POST {{WebApplication_HostAddress}}/api/v1.0/vehiclemake
+Content-Type: application/json
+
+{
+  "name": "TestMake2",
+  "abrv": "TestAbrv2"
+}
+
+
+###
+GET {{WebApplication_HostAddress}}/api/v1.0/vehiclemake
+Content-Type: application/json

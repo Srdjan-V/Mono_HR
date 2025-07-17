@@ -11,7 +11,7 @@ namespace Mono.WebAPI;
 
 [ApiController]
 [ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/[controller]")]
+[Route("api/v{version}/[controller]")]
 public class VehicleRegistrationController : ControllerBase
 {
     private readonly IVehicleService _vehicleService;

@@ -33,11 +33,19 @@ public class ServiceModule : NinjectModule
 
         var mapperCfg = new MapperConfiguration(cfg =>
         {
-            cfg.CreateMap<VehicleRegistrationDto, VehicleRegistration>();
-            cfg.CreateMap<VehicleModelDto, VehicleModel>();
-            cfg.CreateMap<VehicleMakeDto, VehicleMake>();
-            cfg.CreateMap<VehicleEngineTypeDto, VehicleEngineType>();
-            cfg.CreateMap<VehicleOwnerDto, VehicleOwner>();
+            cfg.CreateMap<VehicleRegistrationDto, VehicleRegistration>().ReverseMap();
+            cfg.CreateMap<VehicleRegistrationCreateUpdateDto, VehicleRegistration>();
+
+            cfg.CreateMap<VehicleOwnerDto, VehicleOwner>().ReverseMap();
+            cfg.CreateMap<VehicleOwnerCreateUpdateDto, VehicleOwner>();
+
+            cfg.CreateMap<VehicleModelDto, VehicleModel>().ReverseMap();
+            cfg.CreateMap<VehicleModelCreateUpdateDto, VehicleModel>();
+
+            cfg.CreateMap<VehicleMakeDto, VehicleMake>().ReverseMap();
+            cfg.CreateMap<VehicleMakeCreateUpdateDto, VehicleMake>();
+
+            cfg.CreateMap<VehicleEngineTypeDto, VehicleEngineType>().ReverseMap();
         }, LoggerFactory.Create(builder => builder.AddConsole()));
 
         Bind<IMapper>().ToProvider(new ConstantProvider<IMapper>(mapperCfg.CreateMapper()));
@@ -49,7 +57,7 @@ public class ServiceModule : NinjectModule
         Bind<IVehicleService>().To<VehicleService>();
 
         Bind<VehicleRegistrationController>().ToSelf();
-        Bind<VehicleMakeControl>().ToSelf();
+        Bind<VehicleMakeController>().ToSelf();
         Bind<VehicleModelController>().ToSelf();
         Bind<VehicleOwnerController>().ToSelf();
     }

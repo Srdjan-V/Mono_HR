@@ -10,27 +10,34 @@ using Mono.WebAPI.dto;
 namespace Mono.WebAPI;
 
 [ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/[controller]")]
+[Route("api/v{version}/[controller]")]
 public class VehicleOwnerController(
     IMapper mapper,
     IRepositoryFactory<VehicleOwner> makeFactory) :
     ControllerBase
 {
     [HttpGet(Name = nameof(GetAllOwners))]
-    public async Task<ActionResult> GetAllOwners(ApiVersion version, [FromQuery] QueryParameters queryParameters)
+    public async Task<ActionResult> GetAllOwners([FromQuery] QueryParameters queryParameters)
     {
         using var repository = makeFactory.Build();
         var query = queryParameters.Query;
+        Func<VehicleOwner, bool>? filter = string.IsNullOrEmpty(query)
+            ? null
+            : make => make.FirstName.ToString().Contains(query, StringComparison.InvariantCultureIgnoreCase) ||
+                      make.FirstName.Contains(query, StringComparison.InvariantCultureIgnoreCase) ||
+                      make.LastName.ToString().Contains(query, StringComparison.InvariantCultureIgnoreCase) ||
+                      make.LastName.Contains(query, StringComparison.InvariantCultureIgnoreCase);
+
+        var sorter = queryParameters.CreateComparer<VehicleOwner>([
+            typeof(VehicleOwner).GetProperty(nameof(VehicleOwner.FirstName)),
+            typeof(VehicleOwner).GetProperty(nameof(VehicleOwner.LastName))
+        ], typeof(VehicleOwner).GetProperty(nameof(VehicleOwner.FirstName)));
+
         var pagedResult = await repository.FindPaged(
             queryParameters.Page,
             queryParameters.PageCount,
-            make =>
-                query == null ||
-                make.FirstName.ToString().Contains(query, StringComparison.InvariantCultureIgnoreCase) ||
-                make.FirstName.Contains(query, StringComparison.InvariantCultureIgnoreCase) ||
-                make.LastName.ToString().Contains(query, StringComparison.InvariantCultureIgnoreCase) ||
-                make.LastName.Contains(query, StringComparison.InvariantCultureIgnoreCase),
-            Comparer<VehicleOwner>.Default //todo figure out how to build the correct sorter in c#
+            filter,
+            sorter
         );
 
         var allItemCount = await repository.CountAsync();
@@ -59,12 +66,13 @@ public class VehicleOwnerController(
     }
 
     [HttpPost(Name = nameof(RegisterOwner))]
-    public async Task<ActionResult> RegisterOwner(ApiVersion version, [FromBody] VehicleOwnerCreateUpdateDto updateDto)
+    public async Task<ActionResult> RegisterOwner([FromBody] VehicleOwnerCreateUpdateDto updateDto)
     {
         var vehicleOwner = mapper.Map<VehicleOwnerCreateUpdateDto, VehicleOwner>(updateDto);
         using var repository = makeFactory.Build();
-        var i = await repository.AddAsync(vehicleOwner);
-        if (i != 1)
+        var addAsync = await repository.AddAsync(vehicleOwner);
+        var commitAsync = await repository.CommitAsync();
+        if (addAsync != 1 || commitAsync != 1)
         {
             throw new IOException("Failed to register new make");
         }
@@ -74,7 +82,7 @@ public class VehicleOwnerController(
     }
 
     [HttpPatch(Name = nameof(UpdateOwner))]
-    public async Task<ActionResult> UpdateOwner(ApiVersion version, [FromBody] VehicleOwnerCreateUpdateDto updateDto)
+    public async Task<ActionResult> UpdateOwner([FromBody] VehicleOwnerCreateUpdateDto updateDto)
     {
         var vehicleOwner = mapper.Map<VehicleOwnerCreateUpdateDto, VehicleOwner>(updateDto);
         using var repository = makeFactory.Build();
@@ -90,7 +98,7 @@ public class VehicleOwnerController(
     }
 
     [HttpDelete(Name = nameof(DeleteOwner))]
-    public async Task<ActionResult> DeleteOwner(ApiVersion version, [FromQuery] long id)
+    public async Task<ActionResult> DeleteOwner([FromQuery] long id)
     {
         using var repository = makeFactory.Build();
         var vehicleOwner = await repository.GetAsync(id);

@@ -10,27 +10,34 @@ using Mono.WebAPI.dto;
 namespace Mono.WebAPI;
 
 [ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/[controller]")]
-public class VehicleMakeControl(
+[Route("api/v{version}/[controller]")]
+public class VehicleMakeController(
     IMapper mapper,
     IRepositoryFactory<VehicleMake> makeFactory) :
     ControllerBase
 {
     [HttpGet(Name = nameof(GetAllMakes))]
-    public async Task<ActionResult> GetAllMakes(ApiVersion version, [FromQuery] QueryParameters queryParameters)
+    public async Task<ActionResult> GetAllMakes([FromQuery] QueryParameters queryParameters)
     {
         using var repository = makeFactory.Build();
         var query = queryParameters.Query;
+        Func<VehicleMake, bool>? filter = string.IsNullOrEmpty(query)
+            ? null
+            : make => make.Name.ToString().Contains(query, StringComparison.InvariantCultureIgnoreCase) ||
+                      make.Name.Contains(query, StringComparison.InvariantCultureIgnoreCase) ||
+                      make.Abrv.ToString().Contains(query, StringComparison.InvariantCultureIgnoreCase) ||
+                      make.Abrv.Contains(query, StringComparison.InvariantCultureIgnoreCase);
+
+        var sorter = queryParameters.CreateComparer<VehicleMake>([
+            typeof(VehicleMake).GetProperty(nameof(VehicleMake.Name)),
+            typeof(VehicleMake).GetProperty(nameof(VehicleMake.Abrv))
+        ], typeof(VehicleMake).GetProperty(nameof(VehicleMake.Name)));
+
         var pagedResult = await repository.FindPaged(
             queryParameters.Page,
             queryParameters.PageCount,
-            make =>
-                query == null ||
-                make.Name.ToString().Contains(query, StringComparison.InvariantCultureIgnoreCase) ||
-                make.Name.Contains(query, StringComparison.InvariantCultureIgnoreCase) ||
-                make.Abrv.ToString().Contains(query, StringComparison.InvariantCultureIgnoreCase) ||
-                make.Abrv.Contains(query, StringComparison.InvariantCultureIgnoreCase),
-            Comparer<VehicleMake>.Default //todo figure out how to build the correct sorter in c#
+            filter,
+            sorter
         );
 
         var allItemCount = await repository.CountAsync();
@@ -59,12 +66,13 @@ public class VehicleMakeControl(
     }
 
     [HttpPost(Name = nameof(RegisterMake))]
-    public async Task<ActionResult> RegisterMake(ApiVersion version, [FromBody] VehicleMakeCreateUpdateDto updateDto)
+    public async Task<ActionResult> RegisterMake([FromBody] VehicleMakeCreateUpdateDto updateDto)
     {
         var vehicleMake = mapper.Map<VehicleMakeCreateUpdateDto, VehicleMake>(updateDto);
         using var repository = makeFactory.Build();
-        var i = await repository.AddAsync(vehicleMake);
-        if (i != 1)
+        var addAsync = await repository.AddAsync(vehicleMake);
+        var commitAsync = await repository.CommitAsync();
+        if (addAsync != 1 || commitAsync != 1)
         {
             throw new IOException("Failed to register new make");
         }
@@ -74,7 +82,7 @@ public class VehicleMakeControl(
     }
 
     [HttpPatch(Name = nameof(UpdateMake))]
-    public async Task<ActionResult> UpdateMake(ApiVersion version, [FromBody] VehicleMakeCreateUpdateDto updateDto)
+    public async Task<ActionResult> UpdateMake([FromBody] VehicleMakeCreateUpdateDto updateDto)
     {
         var vehicleMake = mapper.Map<VehicleMakeCreateUpdateDto, VehicleMake>(updateDto);
         using var repository = makeFactory.Build();
@@ -90,7 +98,7 @@ public class VehicleMakeControl(
     }
 
     [HttpDelete(Name = nameof(DeleteMake))]
-    public async Task<ActionResult> DeleteMake(ApiVersion version, [FromQuery] long id)
+    public async Task<ActionResult> DeleteMake([FromQuery] long id)
     {
         using var repository = makeFactory.Build();
         var vehicleMake = await repository.GetAsync(id);

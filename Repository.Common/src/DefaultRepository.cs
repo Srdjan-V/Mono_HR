@@ -1,5 +1,4 @@
-﻿using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Mono.DAL;
 using Mono.Model.Common;
 
@@ -16,10 +15,10 @@ public abstract class DefaultRepository<T> : IRepository<T> where T : class, IBa
         DbSet = dbContextMapper(DbContext);
     }
 
-    public async ValueTask<PagedResult<T>> FindPaged(int page, int pageSize, Expression<Func<T, bool>>? filter,
+    public ValueTask<PagedResult<T>> FindPaged(int page, int pageSize, Func<T, bool>? filter,
         IComparer<T>? comparer)
     {
-        IQueryable<T> query = DbSet.AsQueryable();
+        IEnumerable<T> query = DbSet.AsQueryable();
         if (filter != null)
         {
             query = query.Where(filter);
@@ -30,14 +29,15 @@ public abstract class DefaultRepository<T> : IRepository<T> where T : class, IBa
             query = query.Order(comparer);
         }
 
-        var totalCount = await query.CountAsync();
-        var items = await query
-            .Skip(Math.Max(1, page - 1) * pageSize)
+        var baseEntities = query.ToList();
+        var totalCount = baseEntities.Count();
+        var items = baseEntities
+            .Skip(Math.Max(0, page - 1) * pageSize)
             .Take(pageSize)
-            .ToListAsync();
+            .ToList();
 
         var result = new PagedResult<T>(items, totalCount, page);
-        return result;
+        return ValueTask.FromResult(result);
     }
 
     public virtual Task<int> CountAsync()
