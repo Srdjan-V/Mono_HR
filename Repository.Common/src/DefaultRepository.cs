@@ -40,6 +40,11 @@ public abstract class DefaultRepository<T> : IRepository<T> where T : class, IBa
         return ValueTask.FromResult(result);
     }
 
+    public virtual Task<List<T>> FindAll()
+    {
+        return DbSet.AsNoTracking().ToListAsync();
+    }
+
     public virtual Task<int> CountAsync()
     {
         return DbSet.CountAsync();

@@ -9,6 +9,8 @@ public interface IRepository<T> : IDisposable where T : IBaseEntity
     ValueTask<PagedResult<T>> FindPaged(int page, int pageSize, Func<T, bool>? filter,
         IComparer<T>? comparer);
 
+    Task<List<T>> FindAll();
+
     Task<int> CountAsync();
 
     //UnitOfWork

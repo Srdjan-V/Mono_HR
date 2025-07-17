@@ -18,6 +18,7 @@ kernel.Load(new ServiceModule());
 builder.Host.UseServiceProviderFactory(new NinjectServiceProviderFactory(kernel));
 
 builder.Services.AddControllers();
+builder.Services.AddSingleton<VehicleEngineTypeController>();
 builder.Services.AddSingleton<VehicleMakeController>();
 builder.Services.AddSingleton<VehicleModelController>();
 builder.Services.AddSingleton<VehicleOwnerController>();
