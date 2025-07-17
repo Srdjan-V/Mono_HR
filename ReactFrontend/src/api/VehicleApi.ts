@@ -12,7 +12,7 @@ export const fetchMakes = async (params: QueryParameters): Promise<VehicleMake[]
 };
 
 export const updateMake = async (id: string, updatedMake: Partial<VehicleMake>): Promise<VehicleMake> => {
-    const response = await axios.put(`${API_URL}/v1.0/vehiclemake/${id}`, updatedMake);
+    const response = await axios.patch(`${API_URL}/v1.0/vehiclemake/${id}`, updatedMake);
     return response.data;
 };
 

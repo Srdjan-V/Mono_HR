@@ -4,11 +4,17 @@ import type {QueryParameters} from "../store/QueryParameters.ts";
 import {LocalStorage} from "../utils/LocalStorage.ts";
 
 
-export const SearchComponent: React.FC<{
+export interface SearchComponentProps {
     onSearch: (params: QueryParameters) => void;
     local: LocalStorage<QueryParameters>;
     defaultState: QueryParameters;
-}> = ({onSearch, local, defaultState}) => {
+}
+
+export const SearchComponent = ({
+                                    onSearch,
+                                    local,
+                                    defaultState
+                                }: SearchComponentProps) => {
     const [params, setParams] = useState<QueryParameters>(local.loadDefault(defaultState))
 
     const handleSearch = () => {
@@ -122,14 +128,14 @@ export interface SearchResultsProps<T> {
 
 }
 
-export const SearchResults = <T extends { id: string | number }>({
-                                                                     results,
-                                                                     renderItem,
-                                                                     loading,
-                                                                     error,
-                                                                     params,
-                                                                     onPageChange
-                                                                 }: SearchResultsProps<T>) => {
+export const SearchResults = <T extends object>({
+                                                    results,
+                                                    renderItem,
+                                                    loading,
+                                                    error,
+                                                    params,
+                                                    onPageChange
+                                                }: SearchResultsProps<T>) => {
     const safeResults: T[] = (() => {
         try {
             // Handle null/undefined
