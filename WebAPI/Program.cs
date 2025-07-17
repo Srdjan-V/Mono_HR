@@ -28,4 +28,10 @@ var app = builder.Build();
 //app.UseHttpsRedirection();
 //app.UseRouting();
 app.MapControllers();
+
+app.UseCors(policy =>
+    policy.AllowAnyOrigin()
+        .AllowAnyMethod()
+        .AllowAnyHeader());
+
 app.Run();

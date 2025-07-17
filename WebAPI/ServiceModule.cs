@@ -34,16 +34,24 @@ public class ServiceModule : NinjectModule
         var mapperCfg = new MapperConfiguration(cfg =>
         {
             cfg.CreateMap<VehicleRegistrationDto, VehicleRegistration>().ReverseMap();
-            cfg.CreateMap<VehicleRegistrationCreateUpdateDto, VehicleRegistration>();
+            cfg.CreateMap<VehicleRegistrationCreateUpdateDto, VehicleRegistration>()
+                .ForAllMembers(opts =>
+                    opts.Condition((src, dest, srcMember) => srcMember != null));
 
             cfg.CreateMap<VehicleOwnerDto, VehicleOwner>().ReverseMap();
-            cfg.CreateMap<VehicleOwnerCreateUpdateDto, VehicleOwner>();
+            cfg.CreateMap<VehicleOwnerCreateUpdateDto, VehicleOwner>()
+                .ForAllMembers(opts =>
+                    opts.Condition((src, dest, srcMember) => srcMember != null));
 
             cfg.CreateMap<VehicleModelDto, VehicleModel>().ReverseMap();
-            cfg.CreateMap<VehicleModelCreateUpdateDto, VehicleModel>();
+            cfg.CreateMap<VehicleModelCreateUpdateDto, VehicleModel>()
+                .ForAllMembers(opts =>
+                    opts.Condition((src, dest, srcMember) => srcMember != null));
 
             cfg.CreateMap<VehicleMakeDto, VehicleMake>().ReverseMap();
-            cfg.CreateMap<VehicleMakeCreateUpdateDto, VehicleMake>();
+            cfg.CreateMap<VehicleMakeCreateUpdateDto, VehicleMake>()
+                .ForAllMembers(opts =>
+                    opts.Condition((src, dest, srcMember) => srcMember != null));
 
             cfg.CreateMap<VehicleEngineTypeDto, VehicleEngineType>().ReverseMap();
         }, LoggerFactory.Create(builder => builder.AddConsole()));

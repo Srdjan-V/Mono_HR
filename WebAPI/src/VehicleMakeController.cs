@@ -81,19 +81,25 @@ public class VehicleMakeController(
         return Ok(vehicleMakeDto);
     }
 
-    [HttpPatch(Name = nameof(UpdateMake))]
-    public async Task<ActionResult> UpdateMake([FromBody] VehicleMakeCreateUpdateDto updateDto)
+    [HttpPatch("{id:long}", Name = nameof(UpdateMake))]
+    public async Task<ActionResult> UpdateMake(long id, [FromBody] VehicleMakeCreateUpdateDto updateDto)
     {
-        var vehicleMake = mapper.Map<VehicleMakeCreateUpdateDto, VehicleMake>(updateDto);
         using var repository = makeFactory.Build();
-        var updateAsync = await repository.UpdateAsync(vehicleMake);
+        var existingMake = await repository.GetAsync(id);
+        if (existingMake == null)
+        {
+            return NotFound();
+        }
+
+        var updatedMake = mapper.Map(updateDto, existingMake);
+        var updateAsync = await repository.UpdateAsync(updatedMake);
         var commitAsync = await repository.CommitAsync();
         if (updateAsync != 1 || commitAsync != 1)
         {
             throw new IOException("Failed to update new make");
         }
 
-        var vehicleMakeDto = mapper.Map<VehicleMakeDto>(vehicleMake);
+        var vehicleMakeDto = mapper.Map<VehicleMakeDto>(updatedMake);
         return Ok(vehicleMakeDto);
     }
 

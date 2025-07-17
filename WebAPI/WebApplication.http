@@ -25,6 +25,13 @@ Content-Type: application/json
   "abrv": "TestAbrv2"
 }
 
+###
+PATCH {{WebApplication_HostAddress}}/api/v1.0/vehiclemake/1
+Content-Type: application/json
+
+{
+  "name": "PatchedMake"
+}
 
 ###
 GET {{WebApplication_HostAddress}}/api/v1.0/vehiclemake
