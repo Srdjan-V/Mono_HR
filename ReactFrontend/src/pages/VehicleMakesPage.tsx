@@ -3,7 +3,7 @@ import React, {useState} from 'react';
 import type {QueryParameters} from "../store/QueryParameters.ts";
 import {LocalStorage} from "../utils/LocalStorage.ts";
 import type {VehicleMake} from "../api/VehicleTypes.ts";
-import {createMake, fetchMakes, updateMake} from "../api/VehicleApi.ts";
+import {createMake, deleteMake, fetchMakes, updateMake} from "../api/VehicleApi.ts";
 import {SearchComponent, SearchResults} from "../components/SearchComponent.tsx";
 import {PopupCrud} from "../components/CrudComponent.tsx";
 
@@ -27,7 +27,6 @@ const VehicleMakesPage: React.FC = () => {
         setError(null);
 
         try {
-            // Simulate API call
             const response = await fetchMakes(searchParams);
             setResults(response);
         } catch (err) {
@@ -63,13 +62,18 @@ const VehicleMakesPage: React.FC = () => {
                 trigger={<button style={{padding: '10px 20px'}}>Create</button>}
                 fields={[
                     {
+                        name: "id",
+                        label: 'Id',
+                        type: 'text'
+                    },
+                    {
                         name: "name",
-                        label: 'name',
+                        label: 'Name',
                         type: 'text'
                     },
                     {
                         name: 'abrv',
-                        label: 'abrv',
+                        label: 'Abrv',
                         type: 'text'
                     }
                 ]}
@@ -111,6 +115,9 @@ const VehicleMakesPage: React.FC = () => {
                                     ]}
                                     onSave={function (item: VehicleMake): Promise<void> {
                                         return updateMake(item.id, item) as unknown as Promise<void>;
+                                    }}
+                                    onDelete={function (id: string): Promise<void> {
+                                        return deleteMake(id) as unknown as Promise<void>;
                                     }}
                                     emptyItem={function (): VehicleMake {
                                         return {} as VehicleMake
