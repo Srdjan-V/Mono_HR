@@ -5,6 +5,7 @@ import VehicleMakesPage from './pages/VehicleMakesPage';
 import VehicleModelsPage from './pages/VehicleModelsPage';
 import VehicleOwnersPage from './pages/VehicleOwnersPage';
 import VehicleRegistrationsPage from './pages/VehicleRegistrationsPage';
+import VehicleEngineTypesPage from "./pages/EngineTypesPage.tsx";
 
 const App: React.FC = () => {
     return (
@@ -17,6 +18,7 @@ const App: React.FC = () => {
                     <Button color="inherit" component={Link} to="/makes">Makes</Button>
                     <Button color="inherit" component={Link} to="/models">Models</Button>
                     <Button color="inherit" component={Link} to="/owners">Owners</Button>
+                    <Button color="inherit" component={Link} to="/engines">Engine types</Button>
                     <Button color="inherit" component={Link} to="/registrations">Registrations</Button>
                 </Toolbar>
             </AppBar>
@@ -25,6 +27,7 @@ const App: React.FC = () => {
                     <Route path="/makes" element={<VehicleMakesPage/>}/>
                     <Route path="/models" element={<VehicleModelsPage/>}/>
                     <Route path="/owners" element={<VehicleOwnersPage/>}/>
+                    <Route path="/engines" element={<VehicleEngineTypesPage/>}/>
                     <Route path="/registrations" element={<VehicleRegistrationsPage/>}/>
                     <Route path="/" element={<VehicleMakesPage/>}/>
                 </Routes>

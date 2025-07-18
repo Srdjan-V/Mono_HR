@@ -1,10 +1,11 @@
 import React, {useState} from 'react';
 import type {QueryParameters} from "../store/QueryParameters.ts";
 import {LocalStorage} from "../utils/LocalStorage.ts";
-import type {VehicleOwner} from "../api/VehicleTypes.ts";
+import type {VehicleOwner, VehicleOwnerCreateUpdateDto} from "../api/VehicleTypes.ts";
 import {createOwner, deleteOwner, fetchOwners, updateOwner} from "../api/VehicleApi.ts";
 import {SearchComponent, SearchResults} from "../components/SearchComponent.tsx";
 import {PopupCrud} from "../components/CrudComponent.tsx";
+import {TableFromObject} from "../components/TableFromObject.tsx";
 
 
 const DEFAULT_PARAMS: QueryParameters = {
@@ -16,13 +17,14 @@ const DEFAULT_PARAMS: QueryParameters = {
 
 const VehicleOwnersPage: React.FC = () => {
     const localStorage = new LocalStorage<QueryParameters>('VehicleOwnersSearch');
-
+    const localStorageCreate = new LocalStorage<VehicleOwnerCreateUpdateDto>('VehicleOwnersCreate');
+    
     const [results, setResults] = useState<VehicleOwner[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [params, setParams] = useState<QueryParameters>(localStorage.loadDefault(DEFAULT_PARAMS));
 
-    const fetchVehicleMakes = async (searchParams: QueryParameters) => {
+    const fetchVehicleOwners = async (searchParams: QueryParameters) => {
         setLoading(true);
         setError(null);
 
@@ -39,18 +41,18 @@ const VehicleOwnersPage: React.FC = () => {
 
     const handleSearch = (searchParams: QueryParameters) => {
         setParams(searchParams);
-        fetchVehicleMakes(searchParams);
+        fetchVehicleOwners(searchParams);
     };
 
     const handlePageChange = (page: number) => {
         const newParams = {...params, page};
         setParams(newParams);
-        fetchVehicleMakes(newParams);
+        fetchVehicleOwners(newParams);
     };
 
     return (
-        <div className="makes-search-page">
-            <h1>Vehicle Makes Search</h1>
+        <div className="owners-search-page">
+            <h1>Vehicle Owners Search</h1>
 
             <SearchComponent
                 onSearch={handleSearch}
@@ -58,7 +60,8 @@ const VehicleOwnersPage: React.FC = () => {
                 defaultState={DEFAULT_PARAMS}
             />
 
-            <PopupCrud<VehicleOwner>
+            <PopupCrud<VehicleOwnerCreateUpdateDto>
+                local={localStorageCreate}
                 trigger={<button style={{padding: '10px 20px'}}>Create</button>}
                 fields={[
                     {
@@ -82,58 +85,52 @@ const VehicleOwnersPage: React.FC = () => {
                         type: 'date'
                     }
                 ]}
-                onSave={function (item: VehicleOwner): Promise<void> {
+                onSave={function (item: VehicleOwnerCreateUpdateDto): Promise<void> {
                     return createOwner(item) as unknown as Promise<void>;
                 }}
-                emptyItem={function (): VehicleOwner {
-                    return {} as VehicleOwner
+                emptyItem={function (): VehicleOwnerCreateUpdateDto {
+                    return {} as VehicleOwnerCreateUpdateDto
                 }}
             />
-
 
             <SearchResults
                 results={results}
                 renderItem={(vehicleOwner: VehicleOwner) => (
                     <div className="owner-card">
-                        <h3>{vehicleOwner.firstName}</h3>
-                        <div className="owner-details">
-                            <span>Name: ${vehicleOwner.lastName}</span>
-                            <span>  </span>
-                            <span>Abrv: ${vehicleOwner.dob}</span>
-                            <span>  </span>
-
-                            <div className="popup-content">
-                                <PopupCrud<VehicleOwner>
-                                    trigger={<button style={{padding: '10px 20px'}}>Edit</button>}
-                                    item={vehicleOwner}
-                                    fields={[
-                                        {
-                                            name: "firstName",
-                                            label: 'First Name',
-                                            type: 'text'
-                                        },
-                                        {
-                                            name: 'lastName',
-                                            label: 'Last Name',
-                                            type: 'text'
-                                        },
-                                        {
-                                            name: 'dob',
-                                            label: 'Date of birth',
-                                            type: 'date'
-                                        }
-                                    ]}
-                                    onSave={function (item: VehicleOwner): Promise<void> {
-                                        return updateOwner(item.id, item) as unknown as Promise<void>;
-                                    }}
-                                    onDelete={function (id: string): Promise<void> {
-                                        return deleteOwner(id) as unknown as Promise<void>;
-                                    }}
-                                    emptyItem={function (): VehicleOwner {
-                                        return {} as VehicleOwner
-                                    }}
-                                />
-                            </div>
+                        <TableFromObject
+                            data={vehicleOwner}
+                        />
+                        <div className="popup-content">
+                            <PopupCrud<VehicleOwnerCreateUpdateDto>
+                                trigger={<button style={{padding: '10px 20px'}}>Edit</button>}
+                                item={vehicleOwner as VehicleOwnerCreateUpdateDto}
+                                fields={[
+                                    {
+                                        name: "firstName",
+                                        label: 'First Name',
+                                        type: 'text'
+                                    },
+                                    {
+                                        name: 'lastName',
+                                        label: 'Last Name',
+                                        type: 'text'
+                                    },
+                                    {
+                                        name: 'dob',
+                                        label: 'Date of birth',
+                                        type: 'date'
+                                    }
+                                ]}
+                                onSave={function (item: VehicleOwner): Promise<void> {
+                                    return updateOwner(item.id, item) as unknown as Promise<void>;
+                                }}
+                                onDelete={function (id: string): Promise<void> {
+                                    return deleteOwner(id) as unknown as Promise<void>;
+                                }}
+                                emptyItem={function (): VehicleOwner {
+                                    return {} as VehicleOwner
+                                }}
+                            />
                         </div>
                     </div>
                 )}

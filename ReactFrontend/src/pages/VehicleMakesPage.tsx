@@ -2,10 +2,11 @@ import React, {useState} from 'react';
 
 import type {QueryParameters} from "../store/QueryParameters.ts";
 import {LocalStorage} from "../utils/LocalStorage.ts";
-import type {VehicleMake} from "../api/VehicleTypes.ts";
+import type {VehicleMake, VehicleMakeCreateUpdateDto} from "../api/VehicleTypes.ts";
 import {createMake, deleteMake, fetchMakes, updateMake} from "../api/VehicleApi.ts";
 import {SearchComponent, SearchResults} from "../components/SearchComponent.tsx";
 import {PopupCrud} from "../components/CrudComponent.tsx";
+import {TableFromObject} from "../components/TableFromObject.tsx";
 
 const DEFAULT_PARAMS: QueryParameters = {
     page: 1,
@@ -16,7 +17,8 @@ const DEFAULT_PARAMS: QueryParameters = {
 
 const VehicleMakesPage: React.FC = () => {
     const localStorage = new LocalStorage<QueryParameters>('VehicleMakesSearch');
-
+    const localStorageCreate = new LocalStorage<VehicleMakeCreateUpdateDto>('VehicleMakesCreate');
+    
     const [results, setResults] = useState<VehicleMake[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -59,6 +61,7 @@ const VehicleMakesPage: React.FC = () => {
             />
 
             <PopupCrud<VehicleMake>
+                local={localStorageCreate}
                 trigger={<button style={{padding: '10px 20px'}}>Create</button>}
                 fields={[
                     {
@@ -84,46 +87,40 @@ const VehicleMakesPage: React.FC = () => {
                     return {} as VehicleMake
                 }}
             />
-            
 
             <SearchResults
                 results={results}
                 renderItem={(vehicleMake: VehicleMake) => (
                     <div className="make-card">
-                        <h3>{vehicleMake.name}</h3>
-                        <div className="make-details">
-                            <span>Name: ${vehicleMake.name}</span>
-                            <span>  </span>
-                            <span>Abrv: ${vehicleMake.abrv}</span>
-                            <span>  </span>
-
-                            <div className="popup-content">
-                                <PopupCrud<VehicleMake>
-                                    trigger={<button style={{padding: '10px 20px'}}>Edit</button>}
-                                    item={vehicleMake}
-                                    fields={[
-                                        {
-                                            name: "name",
-                                            label: 'name',
-                                            type: 'text'
-                                        },
-                                        {
-                                            name: 'abrv',
-                                            label: 'abrv',
-                                            type: 'text'
-                                        }
-                                    ]}
-                                    onSave={function (item: VehicleMake): Promise<void> {
-                                        return updateMake(item.id, item) as unknown as Promise<void>;
-                                    }}
-                                    onDelete={function (id: string): Promise<void> {
-                                        return deleteMake(id) as unknown as Promise<void>;
-                                    }}
-                                    emptyItem={function (): VehicleMake {
-                                        return {} as VehicleMake
-                                    }}
-                                />
-                            </div>
+                        <TableFromObject
+                            data={vehicleMake}
+                        />
+                        <div className="popup-content">
+                            <PopupCrud<VehicleMake>
+                                trigger={<button style={{padding: '10px 20px'}}>Edit</button>}
+                                item={vehicleMake}
+                                fields={[
+                                    {
+                                        name: "name",
+                                        label: 'name',
+                                        type: 'text'
+                                    },
+                                    {
+                                        name: 'abrv',
+                                        label: 'abrv',
+                                        type: 'text'
+                                    }
+                                ]}
+                                onSave={function (item: VehicleMake): Promise<void> {
+                                    return updateMake(item.id, item) as unknown as Promise<void>;
+                                }}
+                                onDelete={function (id: string): Promise<void> {
+                                    return deleteMake(id) as unknown as Promise<void>;
+                                }}
+                                emptyItem={function (): VehicleMake {
+                                    return {} as VehicleMake
+                                }}
+                            />
                         </div>
                     </div>
                 )}

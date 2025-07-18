@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from 'react';
+import {LocalStorage} from "../utils/LocalStorage.ts";
 
 type FieldType = 'text' | 'number' | 'select' | 'checkbox' | 'date' | 'custom';
 
@@ -18,8 +19,9 @@ interface FieldConfig<T> {
 
 interface SingleItemCrudProps<T> {
     item: T | null;
+    local?: LocalStorage<T>;
     fields: FieldConfig<T>[];
-    onSubmit: (data: T) => Promise<void>;
+    onSubmit?: (data: T) => Promise<void>;
     onDelete?: (id: string) => Promise<void>;
     onCancel?: () => void;
     isLoading?: boolean;
@@ -30,6 +32,7 @@ interface SingleItemCrudProps<T> {
 
 export function SingleItemCrud<T extends { id: string }>({
                                                              item,
+                                                             local,
                                                              fields,
                                                              onSubmit,
                                                              onDelete,
@@ -38,7 +41,14 @@ export function SingleItemCrud<T extends { id: string }>({
                                                              emptyItem,
                                                              title = 'Edit Item',
                                                          }: SingleItemCrudProps<T>) {
-    const [formData, setFormData] = useState<T>(emptyItem());
+    let initItem: T;
+    if (local) {
+        initItem = local.loadDefault(emptyItem())
+    } else {
+        initItem = emptyItem();
+    }
+
+    const [formData, setFormData] = useState<T>(initItem);
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     useEffect(() => {
@@ -50,6 +60,9 @@ export function SingleItemCrud<T extends { id: string }>({
             ...prev,
             [name]: value,
         }));
+        if (local) {
+            local.save(formData)
+        }
         // Clear error when field changes
         setErrors(prev => ({...prev, [name as string]: ''}));
     };
@@ -66,6 +79,8 @@ export function SingleItemCrud<T extends { id: string }>({
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
+        if (!onSubmit) return;
+
         e.preventDefault();
         if (!validate()) return;
 
@@ -160,13 +175,13 @@ export function SingleItemCrud<T extends { id: string }>({
                 {fields.map(renderField)}
 
                 <div className="actions">
-                    <button
-                        type="submit"
-                        disabled={isLoading}
-                    >
-                        {isLoading ? 'Saving...' : 'Save'}
-                    </button>
-
+                    {onSubmit && (<button
+                            type="submit"
+                            disabled={isLoading}
+                        >
+                            {isLoading ? 'Saving...' : 'Save'}
+                        </button>
+                    )}
                     {onCancel && (
                         <button
                             type="button"
@@ -196,8 +211,9 @@ export function SingleItemCrud<T extends { id: string }>({
 
 interface PopupCrudProps<T extends { id: string }> {
     trigger: React.ReactNode;
+    local?: LocalStorage<T>;
     fields: FieldConfig<T>[];
-    onSave: (data: T) => Promise<void>;
+    onSave?: (data: T) => Promise<void>;
     onDelete?: (id: string) => Promise<void>;
     emptyItem: () => T;
     item?: T | null;
@@ -207,6 +223,7 @@ interface PopupCrudProps<T extends { id: string }> {
 
 export function PopupCrud<T extends { id: string }>({
                                                         trigger,
+                                                        local,
                                                         fields,
                                                         onSave,
                                                         onDelete,
@@ -229,6 +246,8 @@ export function PopupCrud<T extends { id: string }>({
     };
 
     const handleSave = async (data: T) => {
+        if (!onSave) return;
+
         setIsLoading(true);
         try {
             await onSave(data);
@@ -269,8 +288,9 @@ export function PopupCrud<T extends { id: string }>({
                         <div className="popup-content">
                             <SingleItemCrud<T>
                                 item={currentItem}
+                                local={local}
                                 fields={fields}
-                                onSubmit={handleSave}
+                                onSubmit={onSave ? handleSave : undefined}
                                 onDelete={onDelete ? handleDelete : undefined}
                                 onCancel={handleClose}
                                 isLoading={isLoading}
