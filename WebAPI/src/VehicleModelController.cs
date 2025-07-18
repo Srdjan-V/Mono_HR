@@ -78,7 +78,10 @@ public class VehicleModelController(
         }
 
         var vehicleModelDto = mapper.Map<VehicleModelDto>(vehicleModel);
-        return Ok(vehicleModelDto);
+        return Ok(new
+        {
+            value = vehicleModelDto,
+        });
     }
 
     [HttpPatch("{id:long}", Name = nameof(UpdateModel))]
@@ -100,11 +103,14 @@ public class VehicleModelController(
         }
 
         var vehicleMakeDto = mapper.Map<VehicleMakeDto>(updateModel);
-        return Ok(vehicleMakeDto);
+        return Ok(new
+        {
+            value = vehicleMakeDto,
+        });
     }
 
-    [HttpDelete(Name = nameof(DeleteModel))]
-    public async Task<ActionResult> DeleteModel([FromQuery] long id)
+    [HttpDelete("{id:long}", Name = nameof(DeleteModel))]
+    public async Task<ActionResult> DeleteModel(long id)
     {
         using var repository = modelFactory.Build();
         var vehicleModel = await repository.GetAsync(id);
@@ -113,7 +119,13 @@ public class VehicleModelController(
             return NotFound();
         }
 
+        await repository.DeleteAsync(id);
+        await repository.CommitAsync();
+
         var modelDto = mapper.Map<VehicleModelDto>(vehicleModel);
-        return Ok(modelDto);
+        return Ok(new
+        {
+            value = modelDto,
+        });
     }
 }
