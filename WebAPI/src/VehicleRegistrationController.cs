@@ -1,10 +1,10 @@
+using System.Collections;
+using System.Text.Json;
 using Asp.Versioning;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Mono.Model;
-using Mono.Model.Common;
 using Mono.Repository.Common;
-using Mono.Service.Common;
 using Mono.WebAPI.dto;
 
 namespace Mono.WebAPI;
@@ -12,58 +12,118 @@ namespace Mono.WebAPI;
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version}/[controller]")]
-public class VehicleRegistrationController : ControllerBase
+public class VehicleRegistrationController(
+    IMapper mapper,
+    IRepositoryFactory<VehicleRegistration> registrationFactory
+) : ControllerBase
 {
-    private readonly IVehicleService _vehicleService;
-    private readonly IEngineTypeService _engineTypeService;
-    private readonly IRepositoryFactory<VehicleEngineType> _engineEngineFactory;
-    private readonly IMapper _mapper;
-
-    public VehicleRegistrationController(
-        IVehicleService vehicleService,
-        IEngineTypeService engineTypeService,
-        IRepositoryFactory<VehicleEngineType> engineFactory,
-        IMapper mapper)
+    [HttpGet(Name = nameof(GetAllRegistrations))]
+    public async Task<ActionResult> GetAllRegistrations([FromQuery] QueryParameters queryParameters)
     {
-        _vehicleService = vehicleService;
-        _engineTypeService = engineTypeService;
-        _engineEngineFactory = engineFactory;
-        _mapper = mapper;
+        using var repository = registrationFactory.Build();
+        var query = queryParameters.Query;
+        Func<VehicleRegistration, bool>? filter = string.IsNullOrEmpty(query)
+            ? null
+            : make => make.RegistrationNumber.ToString().Contains(query, StringComparison.InvariantCultureIgnoreCase) ||
+                      make.RegistrationNumber.Contains(query, StringComparison.InvariantCultureIgnoreCase);
 
-        //build lookup table
-        _engineTypeService.Initialize(_engineEngineFactory);
-    }
+        var sorter = queryParameters.CreateComparer<VehicleRegistration>([
+            typeof(VehicleRegistration).GetProperty(nameof(VehicleRegistration.RegistrationNumber))
+        ], typeof(VehicleRegistration).GetProperty(nameof(VehicleRegistration.RegistrationNumber)));
 
-    [HttpPost("register")]
-    public async Task<ActionResult<VehicleRegistrationDto>> RegisterVehicle(
-        [FromBody] CombinedRegistrationRequest request)
-    {
-        var registrationRequest = _mapper.Map<IVehicleRegistration>(request.Registration);
-        var modelRequest = _mapper.Map<IVehicleModel>(request.Model);
-        var makeRequest = _mapper.Map<IVehicleMake>(request.Make);
-        var engineTypeRequest = _mapper.Map<IVehicleEngineType>(request.EngineType);
-        var ownerRequest = _mapper.Map<IVehicleOwner>(request.Owner);
-
-        var result = await _vehicleService.RegisterVehicleAsync(
-            registrationRequest,
-            modelRequest,
-            makeRequest,
-            engineTypeRequest,
-            ownerRequest
+        var pagedResult = await repository.FindPaged(
+            queryParameters.Page,
+            queryParameters.PageCount,
+            filter,
+            sorter
         );
 
-        return Ok(result);
+        var allItemCount = await repository.CountAsync();
+
+        var paginationMetadata = new
+        {
+            totalCount = allItemCount,
+            pageSize = queryParameters.PageCount,
+            currentPage = queryParameters.Page,
+            totalPages = queryParameters.GetTotalPages(allItemCount)
+        };
+
+        Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(paginationMetadata));
+
+        var data = new ArrayList();
+        foreach (var item in pagedResult.Items)
+        {
+            var dto = mapper.Map<VehicleRegistration, VehicleRegistrationDto>(item);
+            data.Add(dto);
+        }
+
+        return Ok(new
+        {
+            value = data,
+        });
     }
-}
 
-public class CombinedRegistrationRequest
-{
-    public VehicleRegistrationCreateUpdateDto Registration { get; set; }
+    [HttpPost(Name = nameof(RegisterRegistration))]
+    public async Task<ActionResult> RegisterRegistration([FromBody] VehicleRegistrationCreateUpdateDto updateDto)
+    {
+        var vehicleRegistration = mapper.Map<VehicleRegistrationCreateUpdateDto, VehicleRegistration>(updateDto);
+        using var repository = registrationFactory.Build();
+        var addAsync = await repository.AddAsync(vehicleRegistration);
+        var commitAsync = await repository.CommitAsync();
+        if (addAsync != 1 || commitAsync != 1)
+        {
+            throw new IOException("Failed to register new make");
+        }
 
-    public VehicleModelCreateUpdateDto Model { get; set; }
+        var ownerDto = mapper.Map<VehicleRegistrationDto>(vehicleRegistration);
+        return Ok(new
+        {
+            value = ownerDto,
+        });
+    }
 
-    public VehicleMakeCreateUpdateDto Make { get; set; }
+    [HttpPatch("{id:long}", Name = nameof(UpdateRegistration))]
+    public async Task<ActionResult> UpdateRegistration(long id, [FromBody] VehicleRegistrationDto updateDto)
+    {
+        using var repository = registrationFactory.Build();
+        var existingModel = await repository.GetAsync(id);
+        if (existingModel == null)
+        {
+            return NotFound();
+        }
 
-    public VehicleEngineTypeDto EngineType { get; set; }
-    public VehicleOwnerCreateUpdateDto Owner { get; set; }
+        var updateOwner = mapper.Map(updateDto, existingModel);
+        var updateAsync = await repository.UpdateAsync(updateOwner);
+        var commitAsync = await repository.CommitAsync();
+        if (updateAsync != 1 || commitAsync != 1)
+        {
+            throw new IOException("Failed to update new make");
+        }
+
+        var ownerDto = mapper.Map<VehicleRegistrationDto>(updateOwner);
+        return Ok(new
+        {
+            value = ownerDto,
+        });
+    }
+
+    [HttpDelete("{id:long}", Name = nameof(DeleteRegistration))]
+    public async Task<ActionResult> DeleteRegistration(long id)
+    {
+        using var repository = registrationFactory.Build();
+        var vehicleOwner = await repository.GetAsync(id);
+        if (vehicleOwner == null)
+        {
+            return NotFound();
+        }
+
+        await repository.DeleteAsync(id);
+        await repository.CommitAsync();
+
+        var ownerDto = mapper.Map<VehicleOwnerDto>(vehicleOwner);
+        return Ok(new
+        {
+            value = ownerDto,
+        });
+    }
 }

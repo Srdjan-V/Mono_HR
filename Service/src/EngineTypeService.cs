@@ -11,21 +11,21 @@ public class EngineTypeService : IEngineTypeService
         using var repository = factory.Build();
         await repository.AddAsync(new VehicleEngineType
         {
-            Id = 0,
+            Id = 1,
             Type = "Electric",
             Abrv = "ELC"
         });
 
         await repository.AddAsync(new VehicleEngineType
         {
-            Id = 1,
+            Id = 2,
             Type = "Gasoline",
             Abrv = "GAS"
         });
 
         await repository.AddAsync(new VehicleEngineType
         {
-            Id = 2,
+            Id = 3,
             Type = "Diesel",
             Abrv = "DIS"
         });

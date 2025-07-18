@@ -62,7 +62,8 @@ public class ServiceModule : NinjectModule
         //todo atm its an in memory 
         Bind<IMonoDbContext>().To<InMemorySqliteMonoDbContext>().InSingletonScope();
 
-        Bind<IVehicleService>().To<VehicleService>();
+        //Bind<IVehicleService>().To<VehicleService>();
+        Bind<IEngineTypeService>().To<EngineTypeService>();
 
         Bind<VehicleRegistrationController>().ToSelf();
         Bind<VehicleMakeController>().ToSelf();
